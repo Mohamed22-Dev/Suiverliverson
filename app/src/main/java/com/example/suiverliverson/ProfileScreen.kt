@@ -69,7 +69,7 @@ import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
-// QR Code حقيقي قابل للمسح، مولَّد بمكتبة ZXing ومرسوم بنفس شكل الصورة
+
 @Composable
 fun ProfessionalQrCode(data: String, modifier: Modifier = Modifier) {
     val matrix = remember(data) {
@@ -133,8 +133,13 @@ fun ProfileScreen(
     val userBitmap = remember(account?.imageUri) {
         if (!account?.imageUri.isNullOrEmpty()) {
             try {
-                context.contentResolver.openInputStream(Uri.parse(account!!.imageUri)).use {
-                    BitmapFactory.decodeStream(it)
+                val pathStr = account!!.imageUri!!
+                if (pathStr.startsWith("content://")) {
+                    context.contentResolver.openInputStream(Uri.parse(pathStr))?.use {
+                        BitmapFactory.decodeStream(it)
+                    }
+                } else {
+                    BitmapFactory.decodeFile(pathStr)
                 }
             } catch (e: Exception) {
                 null

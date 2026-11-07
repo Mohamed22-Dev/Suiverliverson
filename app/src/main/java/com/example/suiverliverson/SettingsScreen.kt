@@ -118,8 +118,13 @@ fun SettingsScreen(store: AccountStore, onBack: () -> Unit) {
                     if (editImageUri != null) {
                         val bitmap = remember(editImageUri) {
                             try {
-                                context.contentResolver.openInputStream(editImageUri!!).use {
-                                    BitmapFactory.decodeStream(it)
+                                val pathStr = editImageUri.toString()
+                                if (pathStr.startsWith("content://")) {
+                                    context.contentResolver.openInputStream(editImageUri!!).use {
+                                        BitmapFactory.decodeStream(it)
+                                    }
+                                } else {
+                                    BitmapFactory.decodeFile(pathStr)
                                 }
                             } catch (e: Exception) { null }
                         }
@@ -169,7 +174,6 @@ fun SettingsScreen(store: AccountStore, onBack: () -> Unit) {
 
                 Spacer(Modifier.height(20.dp))
 
-                // اللغة
                 Text("Langue / اللغة", color = LightGray, fontSize = 14.sp)
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -206,11 +210,16 @@ fun SettingsScreen(store: AccountStore, onBack: () -> Unit) {
                 Button(
                     onClick = {
                         if (account != null) {
+                            val newImagePath = if (editImageUri != null) {
+                                val str = editImageUri.toString()
+                                if (str.startsWith("content://")) saveUriToInternalStorage(context, editImageUri!!) else str
+                            } else account.imageUri
+
                             val updated = account.copy(
                                 firstName = editFirstName,
                                 lastName = editLastName,
                                 login = editPhone,
-                                imageUri = editImageUri?.toString()
+                                imageUri = newImagePath
                             )
                             store.updateAccount(updated)
                         }

@@ -1,5 +1,7 @@
 package com.example.suiverliverson
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -62,6 +64,26 @@ import com.example.suiverliverson.ui.theme.DarkGray
 import com.example.suiverliverson.ui.theme.LightGray
 import com.example.suiverliverson.ui.theme.Red
 import com.example.suiverliverson.ui.theme.White
+import java.io.File
+import java.io.FileOutputStream
+
+// دالة حفظ آمنة للصورة في الذاكرة الداخلية للتطبيق لتفادي أي كراش على الأجهزة الأخرى
+fun saveUriToInternalStorage(context: Context, uri: Uri): String? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        inputStream?.close()
+
+        val file = File(context.filesDir, "profile_${System.currentTimeMillis()}.jpg")
+        val outputStream = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
+        outputStream.flush()
+        outputStream.close()
+        file.absolutePath
+    } catch (e: Exception) {
+        null
+    }
+}
 
 @Composable
 fun appFieldColors() = OutlinedTextFieldDefaults.colors(
@@ -276,8 +298,9 @@ fun SignUpScreen(store: AccountStore, onBack: () -> Unit, onSuccess: () -> Unit)
                     else -> null
                 }
                 if (error == null && ageInt != null) {
+                    val localImagePath = imageUri?.let { saveUriToInternalStorage(context, it) }
                     val account = store.register(
-                        firstName, lastName, ageInt, license, login, password, imageUri?.toString()
+                        firstName, lastName, ageInt, license, login, password, localImagePath
                     )
                     store.setCurrent(account)
                     onSuccess()
