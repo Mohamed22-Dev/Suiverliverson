@@ -12,7 +12,9 @@ data class Account(
     val license: String,
     val login: String,
     val passwordHash: String,
-    val imageUri: String? = null
+    val imageUri: String? = null,
+    val phone: String = "",
+    val vehicle: String = "سكوتر / Scooter 🛵"
 )
 
 class AccountStore(context: Context) {
@@ -34,6 +36,8 @@ class AccountStore(context: Context) {
         put("login", a.login)
         put("passwordHash", a.passwordHash)
         put("imageUri", a.imageUri ?: "")
+        put("phone", a.phone)
+        put("vehicle", a.vehicle)
     }.toString()
 
     private fun fromJson(text: String): Account {
@@ -46,7 +50,9 @@ class AccountStore(context: Context) {
             o.getString("license"),
             o.getString("login"),
             o.getString("passwordHash"),
-            if (o.has("imageUri")) o.optString("imageUri").ifEmpty { null } else null
+            if (o.has("imageUri")) o.optString("imageUri").ifEmpty { null } else null,
+            if (o.has("phone")) o.optString("phone") else "",
+            if (o.has("vehicle")) o.optString("vehicle").ifEmpty { "سكوتر / Scooter 🛵" } else "سكوتر / Scooter 🛵"
         )
     }
 
@@ -59,7 +65,9 @@ class AccountStore(context: Context) {
         license: String,
         login: String,
         password: String,
-        imageUri: String? = null
+        imageUri: String? = null,
+        phone: String = "",
+        vehicle: String = "سكوتر / Scooter 🛵"
     ): Account {
         val account = Account(
             id = "DRV" + (1000..9999).random(),
@@ -69,7 +77,9 @@ class AccountStore(context: Context) {
             license = license,
             login = login.trim(),
             passwordHash = hash(password),
-            imageUri = imageUri
+            imageUri = imageUri,
+            phone = phone.ifBlank { login },
+            vehicle = vehicle
         )
         prefs.edit().putString(key(login), toJson(account)).apply()
         return account

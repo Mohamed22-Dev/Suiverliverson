@@ -1,7 +1,6 @@
 package com.example.suiverliverson
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,10 +37,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.suiverliverson.ui.theme.AppSurface
+import com.example.suiverliverson.ui.theme.AppBackground
 import com.example.suiverliverson.ui.theme.DarkGray
 import com.example.suiverliverson.ui.theme.Green
 import com.example.suiverliverson.ui.theme.LightGray
+import com.example.suiverliverson.ui.theme.Purple
+import com.example.suiverliverson.ui.theme.RealWhite
 import com.example.suiverliverson.ui.theme.Red
 import com.example.suiverliverson.ui.theme.White
 import kotlinx.coroutines.delay
@@ -47,13 +50,13 @@ import kotlinx.coroutines.delay
 @Composable
 fun StatsScreen() {
     val s = LocalStrings.current
-    var reviewsList by remember { mutableStateOf(initialReviewsList) }
+    val lang = LocalLang.current
+    var reviewsList by remember(lang) { mutableStateOf(getInitialReviewsList(lang)) }
 
-    // محاكاة حية لتلقي التقييمات
-    LaunchedEffect(Unit) {
+    LaunchedEffect(lang) {
         while (true) {
             delay(12_000L)
-            val newRev = generateRandomReview()
+            val newRev = generateRandomReview(lang)
             reviewsList = listOf(newRev) + reviewsList
         }
     }
@@ -61,35 +64,45 @@ fun StatsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(AppBackground)
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            .padding(20.dp)
     ) {
-        // العنوان مترجم
         Text(
             text = s.stats,
             color = White,
-            fontSize = 24.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold
         )
-        Spacer(Modifier.height(16.dp))
+        Text(
+            text = "This week",
+            color = LightGray,
+            fontSize = 13.sp
+        )
 
-        // كارد التقييم الإجمالي مترجم
+        Spacer(Modifier.height(18.dp))
+
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = AppSurface)
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Red),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Row(
                 modifier = Modifier.padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier.weight(0.42f)
+                ) {
                     Text(
                         text = "4.8",
-                        color = White,
-                        fontSize = 42.sp,
+                        color = RealWhite,
+                        fontSize = 38.sp,
                         fontWeight = FontWeight.Bold
                     )
+                    Spacer(Modifier.height(4.dp))
                     Row {
                         repeat(5) {
                             Icon(
@@ -100,49 +113,131 @@ fun StatsScreen() {
                             )
                         }
                     }
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(6.dp))
                     Text(
-                        text = s.reviewsCount.format(reviewsList.size + 120),
-                        color = LightGray,
+                        text = "123 Ratings",
+                        color = RealWhite.copy(alpha = 0.8f),
                         fontSize = 12.sp
                     )
                 }
 
-                Spacer(Modifier.width(20.dp))
+                Spacer(Modifier.width(12.dp))
 
-                Column(modifier = Modifier.weight(1f)) {
-                    RatingBarItem(stars = "5★", progress = 0.85f)
-                    RatingBarItem(stars = "4★", progress = 0.10f)
-                    RatingBarItem(stars = "3★", progress = 0.03f)
-                    RatingBarItem(stars = "2★", progress = 0.01f)
-                    RatingBarItem(stars = "1★", progress = 0.01f)
+                Column(modifier = Modifier.weight(0.58f)) {
+                    RatingBarItem(stars = "5", progress = 0.85f)
+                    RatingBarItem(stars = "4", progress = 0.12f)
+                    RatingBarItem(stars = "3", progress = 0.03f)
+                    RatingBarItem(stars = "2", progress = 0.01f)
+                    RatingBarItem(stars = "1", progress = 0.01f)
                 }
             }
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
 
-        // الإنفوجرافيك الأسبوعي مترجم
-        Text(
-            text = s.weeklyInfographic,
-            color = White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Card(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = RealWhite),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE0F2F1)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Red, modifier = Modifier.size(20.dp))
+                    }
+                    Spacer(Modifier.width(10.dp))
+                    Column {
+                        Text("112", color = White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("Trips", color = LightGray, fontSize = 11.sp)
+                    }
+                }
+            }
+
+            Card(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = RealWhite),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE0F2F1)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.AttachMoney, contentDescription = null, tint = Red, modifier = Modifier.size(20.dp))
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = "$186.00",
+                            color = White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                        Text("Today", color = LightGray, fontSize = 11.sp)
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(18.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = AppSurface)
+            shape = RoundedCornerShape(22.dp),
+            colors = CardDefaults.cardColors(containerColor = RealWhite),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = s.weeklyPerformance,
-                    color = LightGray,
-                    fontSize = 13.sp
-                )
-                Spacer(Modifier.height(16.dp))
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Weekly earnings",
+                        color = White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(Color(0xFFE0F2F1))
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                    ) {
+                        Text(
+                            text = "Best day • Sat",
+                            color = Red,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(24.dp))
 
                 Row(
                     modifier = Modifier
@@ -152,38 +247,43 @@ fun StatsScreen() {
                     verticalAlignment = Alignment.Bottom
                 ) {
                     val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-                    val heights = listOf(0.4f, 0.7f, 0.5f, 0.9f, 0.85f, 1.0f, 0.6f)
+                    val heights = listOf(0.40f, 0.65f, 0.45f, 0.85f, 0.75f, 1.0f, 0.55f)
 
-                    days.zip(heights).forEach { (day, height) ->
+                    days.zip(heights).forEach { (day, h) ->
+                        val isBestDay = day == "Sat"
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Bottom
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .width(18.dp)
-                                    .height((100 * height).dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(if (height >= 0.9f) Red else Green)
+                                    .width(26.dp)
+                                    .height((110 * h).dp)
+                                    .clip(RoundedCornerShape(13.dp))
+                                    .background(if (isBestDay) Red else Color(0xFFB2EBF2))
                             )
                             Spacer(Modifier.height(8.dp))
-                            Text(day, color = LightGray, fontSize = 11.sp)
+                            Text(
+                                day,
+                                color = if (isBestDay) Red else LightGray,
+                                fontSize = 12.sp,
+                                fontWeight = if (isBestDay) FontWeight.Bold else FontWeight.Medium
+                            )
                         }
                     }
                 }
             }
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(22.dp))
 
-        // التقييمات والتعليقات مترجمة
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = s.customerReviews,
+                text = "Customer reviews",
                 color = White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -196,15 +296,70 @@ fun StatsScreen() {
                         .background(Green)
                 )
                 Spacer(Modifier.width(6.dp))
-                Text(s.liveBadge, color = Green, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text("Live", color = Green, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
-        Spacer(Modifier.height(10.dp))
+
+        Spacer(Modifier.height(12.dp))
 
         reviewsList.forEach { review ->
-            ReviewCard(review)
-            Spacer(Modifier.height(10.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = RealWhite),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            InitialsAvatar(name = review.customerName)
+                            Spacer(Modifier.width(12.dp))
+                            Column {
+                                Text(review.customerName, color = White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text(review.timeAgo, color = LightGray, fontSize = 12.sp)
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(Color(0xFFFFF8E1))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Star,
+                                    contentDescription = null,
+                                    tint = Color(0xFFFFB300),
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    "%.1f".format(review.rating),
+                                    color = Color(0xFFB78103),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        text = review.comment,
+                        color = LightGray,
+                        fontSize = 13.sp
+                    )
+                }
+            }
         }
+        Spacer(Modifier.height(20.dp))
     }
 }
 
@@ -214,87 +369,36 @@ private fun RatingBarItem(stars: String, progress: Float) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(vertical = 2.dp)
     ) {
-        Text(stars, color = LightGray, fontSize = 11.sp, modifier = Modifier.width(24.dp))
+        Text(stars, color = RealWhite.copy(alpha = 0.85f), fontSize = 11.sp, modifier = Modifier.width(16.dp))
+        Spacer(Modifier.width(6.dp))
         Box(
             modifier = Modifier
                 .weight(1f)
-                .height(6.dp)
+                .height(5.dp)
                 .clip(RoundedCornerShape(3.dp))
-                .background(DarkGray)
+                .background(RealWhite.copy(alpha = 0.2f))
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(progress)
-                    .height(6.dp)
+                    .height(5.dp)
                     .clip(RoundedCornerShape(3.dp))
-                    .background(Color(0xFFFFB300))
+                    .background(Purple)
             )
         }
     }
 }
 
 @Composable
-private fun ReviewCard(review: CustomerReview) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = AppSurface)
+private fun InitialsAvatar(name: String) {
+    val initials = name.split(" ").mapNotNull { it.firstOrNull()?.uppercase() }.take(2).joinToString("")
+    Box(
+        modifier = Modifier
+            .size(42.dp)
+            .clip(CircleShape)
+            .background(DarkGray),
+        contentAlignment = Alignment.Center
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    val avatarColor = when (review.avatarType) {
-                        AvatarType.WOMAN -> Color(0xFFE91E63)
-                        AvatarType.MAN -> Color(0xFF1976D2)
-                        AvatarType.OLD_MAN -> Color(0xFF8D6E63)
-                        AvatarType.YOUNG -> Color(0xFF4CAF50)
-                    }
-                    val avatarEmoji = when (review.avatarType) {
-                        AvatarType.WOMAN -> "👩‍🦰"
-                        AvatarType.MAN -> "👨"
-                        AvatarType.OLD_MAN -> "👴"
-                        AvatarType.YOUNG -> "👦"
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(avatarColor)
-                            .border(1.dp, White.copy(alpha = 0.4f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(avatarEmoji, fontSize = 18.sp)
-                    }
-                    Spacer(Modifier.width(10.dp))
-                    Column {
-                        Text(review.customerName, color = White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text(review.timeAgo, color = LightGray, fontSize = 11.sp)
-                    }
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.Star,
-                        contentDescription = null,
-                        tint = Color(0xFFFFB300),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text("%.1f".format(review.rating), color = White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = review.comment,
-                color = LightGray,
-                fontSize = 13.sp
-            )
-        }
+        Text(initials.ifEmpty { "CR" }, color = Red, fontWeight = FontWeight.Bold, fontSize = 14.sp)
     }
 }

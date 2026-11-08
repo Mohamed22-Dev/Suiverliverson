@@ -27,14 +27,19 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.DirectionsBike
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -67,7 +72,6 @@ import com.example.suiverliverson.ui.theme.White
 import java.io.File
 import java.io.FileOutputStream
 
-// دالة حفظ آمنة للصورة في الذاكرة الداخلية للتطبيق لتفادي أي كراش على الأجهزة الأخرى
 fun saveUriToInternalStorage(context: Context, uri: Uri): String? {
     return try {
         val inputStream = context.contentResolver.openInputStream(uri)
@@ -102,6 +106,10 @@ fun SignUpScreen(store: AccountStore, onBack: () -> Unit, onSuccess: () -> Unit)
     val context = LocalContext.current
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var vehicle by remember { mutableStateOf("سكوتر / Scooter 🛵") }
+    var showVehicleDropdown by remember { mutableStateOf(false) }
+
     var age by remember { mutableStateOf("") }
     var license by remember { mutableStateOf("B") }
     var login by remember { mutableStateOf("") }
@@ -139,7 +147,6 @@ fun SignUpScreen(store: AccountStore, onBack: () -> Unit, onSuccess: () -> Unit)
         }
         Spacer(Modifier.height(16.dp))
 
-        // اختيار الصورة الشخصية
         Box(
             modifier = Modifier
                 .size(90.dp)
@@ -197,6 +204,71 @@ fun SignUpScreen(store: AccountStore, onBack: () -> Unit, onSuccess: () -> Unit)
                 shape = shape,
                 colors = colors
             )
+        }
+        Spacer(Modifier.height(14.dp))
+
+        OutlinedTextField(
+            value = phone,
+            onValueChange = { phone = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(s.phoneLabel, color = LightGray) },
+            leadingIcon = { Icon(Icons.Default.Phone, null, tint = LightGray) },
+            singleLine = true,
+            shape = shape,
+            colors = colors,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+        )
+        Spacer(Modifier.height(14.dp))
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = vehicle,
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text(s.vehicleLabel, color = LightGray) },
+                leadingIcon = { Icon(Icons.AutoMirrored.Filled.DirectionsBike, null, tint = LightGray) },
+                trailingIcon = {
+                    IconButton(onClick = { showVehicleDropdown = !showVehicleDropdown }) {
+                        Icon(Icons.Default.ArrowDropDown, null, tint = LightGray)
+                    }
+                },
+                enabled = false,
+                shape = shape,
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledContainerColor = AppSurface,
+                    disabledBorderColor = DarkGray,
+                    disabledTextColor = White,
+                    disabledPlaceholderColor = LightGray,
+                    disabledLeadingIconColor = LightGray,
+                    disabledTrailingIconColor = LightGray
+                )
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { showVehicleDropdown = true }
+            )
+
+            DropdownMenu(
+                expanded = showVehicleDropdown,
+                onDismissRequest = { showVehicleDropdown = false },
+                modifier = Modifier.background(AppSurface)
+            ) {
+                listOf(
+                    "سيارة / Car 🚗",
+                    "سكوتر / Scooter 🛵",
+                    "سكوتر كهربائي / Electric Scooter 🛴"
+                ).forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option, color = White, fontWeight = FontWeight.Bold) },
+                        onClick = {
+                            vehicle = option
+                            showVehicleDropdown = false
+                        }
+                    )
+                }
+            }
         }
         Spacer(Modifier.height(14.dp))
 
@@ -300,7 +372,15 @@ fun SignUpScreen(store: AccountStore, onBack: () -> Unit, onSuccess: () -> Unit)
                 if (error == null && ageInt != null) {
                     val localImagePath = imageUri?.let { saveUriToInternalStorage(context, it) }
                     val account = store.register(
-                        firstName, lastName, ageInt, license, login, password, localImagePath
+                        firstName = firstName,
+                        lastName = lastName,
+                        age = ageInt,
+                        license = license,
+                        login = login,
+                        password = password,
+                        imageUri = localImagePath,
+                        phone = phone,
+                        vehicle = vehicle
                     )
                     store.setCurrent(account)
                     onSuccess()

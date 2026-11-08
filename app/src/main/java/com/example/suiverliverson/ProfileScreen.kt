@@ -40,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,19 +57,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.suiverliverson.ui.theme.AppSurface
 import com.example.suiverliverson.ui.theme.DarkGray
 import com.example.suiverliverson.ui.theme.LightGray
+import com.example.suiverliverson.ui.theme.RealWhite
 import com.example.suiverliverson.ui.theme.Red
 import com.example.suiverliverson.ui.theme.White
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
-
 
 @Composable
 fun ProfessionalQrCode(data: String, modifier: Modifier = Modifier) {
@@ -87,14 +89,14 @@ fun ProfessionalQrCode(data: String, modifier: Modifier = Modifier) {
 
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = RealWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(18.dp),
             contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -126,7 +128,12 @@ fun ProfileScreen(
 ) {
     val s = LocalStrings.current
     val context = LocalContext.current
-    val account = store.current()
+
+    var account by remember { mutableStateOf(store.current()) }
+
+    LaunchedEffect(Unit) {
+        account = store.current()
+    }
 
     var showQrDialog by remember { mutableStateOf(false) }
 
@@ -225,16 +232,15 @@ fun ProfileScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Red),
                     shape = RoundedCornerShape(20.dp)
                 ) {
-                    Icon(Icons.Default.QrCode, contentDescription = null, tint = White)
+                    Icon(Icons.Default.QrCode, contentDescription = null, tint = RealWhite)
                     Spacer(Modifier.width(8.dp))
-                    Text(s.qrCode, color = White, fontWeight = FontWeight.Bold)
+                    Text(s.qrCode, color = RealWhite, fontWeight = FontWeight.Bold)
                 }
             }
         }
 
         Spacer(Modifier.height(20.dp))
 
-        // كارد الانتقال لصفحة السجل الكاملة
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -272,11 +278,32 @@ fun ProfileScreen(
             colors = CardDefaults.cardColors(containerColor = AppSurface)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                ProfileInfoRow(Icons.Default.Phone, "Téléphone / رقم الهاتف", account?.login ?: "+212 6 12 34 56 78")
-                ProfileInfoRow(Icons.Default.Email, "E-mail / البريد الإلكتروني", "${account?.firstName?.lowercase() ?: "driver"}@liverson.ma")
-                ProfileInfoRow(Icons.Default.Badge, s.licenseType, "Permis: ${account?.license ?: "B"}")
-                ProfileInfoRow(Icons.Default.Person, s.age, "${account?.age ?: 25} ans")
-                ProfileInfoRow(Icons.AutoMirrored.Filled.DirectionsBike, "Véhicule / الدراجة", "Scooter 125cc (الدار البيضاء 🇲🇦)")
+                val acc = account
+                ProfileInfoRow(
+                    icon = Icons.Default.Phone,
+                    label = s.phoneLabel,
+                    value = if (!acc?.phone.isNullOrBlank()) acc!!.phone else (acc?.login ?: "+212 6 12 34 56 78")
+                )
+                ProfileInfoRow(
+                    icon = Icons.Default.Email,
+                    label = s.emailLabel,
+                    value = if (acc != null && acc.login.contains("@")) acc.login else "${acc?.firstName?.lowercase() ?: "driver"}@liverson.ma"
+                )
+                ProfileInfoRow(
+                    icon = Icons.Default.Badge,
+                    label = s.licenseType,
+                    value = s.licenseFormat.format(acc?.license ?: "B")
+                )
+                ProfileInfoRow(
+                    icon = Icons.Default.Person,
+                    label = s.age,
+                    value = s.yearsOld.format(acc?.age ?: 25)
+                )
+                ProfileInfoRow(
+                    icon = Icons.AutoMirrored.Filled.DirectionsBike,
+                    label = s.vehicleLabel,
+                    value = acc?.vehicle ?: "سكوتر / Scooter 🇲🇦"
+                )
             }
         }
 
@@ -301,37 +328,50 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = AppSurface)
+                colors = CardDefaults.cardColors(containerColor = RealWhite)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = s.qrCode,
                         color = White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(20.dp))
 
                     ProfessionalQrCode(
                         data = "LIVERSON_DRIVER_${account?.id ?: "DRV1024"}",
-                        modifier = Modifier.size(240.dp)
+                        modifier = Modifier.size(210.dp)
                     )
 
-                    Spacer(Modifier.height(16.dp))
-                    Text("ID: ${account?.id ?: "#DRV1024"}", color = Red, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(20.dp))
+                    Text(
+                        text = "ID: ${account?.id ?: "#DRV1024"}",
+                        color = Red,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(Modifier.height(20.dp))
 
                     Button(
                         onClick = { showQrDialog = false },
                         colors = ButtonDefaults.buttonColors(containerColor = Red),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth(0.6f)
+                            .height(48.dp)
                     ) {
-                        Text("Fermer / إغلاق", color = White, fontWeight = FontWeight.Bold)
+                        Text(s.close, color = RealWhite, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
             }

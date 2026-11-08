@@ -24,14 +24,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.DirectionsBike
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -66,7 +71,10 @@ fun SettingsScreen(store: AccountStore, onBack: () -> Unit) {
 
     var editFirstName by remember { mutableStateOf(account?.firstName ?: "") }
     var editLastName by remember { mutableStateOf(account?.lastName ?: "") }
-    var editPhone by remember { mutableStateOf(account?.login ?: "") }
+    var editPhone by remember { mutableStateOf(account?.phone?.ifBlank { account.login } ?: "") }
+    var editVehicle by remember { mutableStateOf(account?.vehicle ?: "سكوتر / Scooter 🛵") }
+    var showVehicleDropdown by remember { mutableStateOf(false) }
+
     var editImageUri by remember { mutableStateOf<Uri?>(account?.imageUri?.let { Uri.parse(it) }) }
     var enableNotifs by remember { mutableStateOf(true) }
 
@@ -106,7 +114,6 @@ fun SettingsScreen(store: AccountStore, onBack: () -> Unit) {
                 modifier = Modifier.padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // الصورة الشخصية
                 Box(
                     modifier = Modifier
                         .size(90.dp)
@@ -167,10 +174,62 @@ fun SettingsScreen(store: AccountStore, onBack: () -> Unit) {
                     value = editPhone,
                     onValueChange = { editPhone = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Téléphone / Phone", color = LightGray) },
+                    label = { Text(s.phoneLabel, color = LightGray) },
                     colors = appFieldColors(),
                     shape = RoundedCornerShape(12.dp)
                 )
+                Spacer(Modifier.height(10.dp))
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = editVehicle,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(s.vehicleLabel, color = LightGray) },
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.DirectionsBike, null, tint = LightGray) },
+                        trailingIcon = {
+                            IconButton(onClick = { showVehicleDropdown = !showVehicleDropdown }) {
+                                Icon(Icons.Default.ArrowDropDown, null, tint = LightGray)
+                            }
+                        },
+                        enabled = false,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledContainerColor = AppSurface,
+                            disabledBorderColor = DarkGray,
+                            disabledTextColor = White,
+                            disabledPlaceholderColor = LightGray,
+                            disabledLeadingIconColor = LightGray,
+                            disabledTrailingIconColor = LightGray
+                        )
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showVehicleDropdown = true }
+                    )
+
+                    DropdownMenu(
+                        expanded = showVehicleDropdown,
+                        onDismissRequest = { showVehicleDropdown = false },
+                        modifier = Modifier.background(AppSurface)
+                    ) {
+                        listOf(
+                            "سيارة / Car 🚗",
+                            "سكوتر / Scooter 🛵",
+                            "سكوتر كهربائي / Electric Scooter 🛴"
+                        ).forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option, color = White, fontWeight = FontWeight.Bold) },
+                                onClick = {
+                                    editVehicle = option
+                                    showVehicleDropdown = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 Spacer(Modifier.height(20.dp))
 
@@ -218,7 +277,8 @@ fun SettingsScreen(store: AccountStore, onBack: () -> Unit) {
                             val updated = account.copy(
                                 firstName = editFirstName,
                                 lastName = editLastName,
-                                login = editPhone,
+                                phone = editPhone,
+                                vehicle = editVehicle,
                                 imageUri = newImagePath
                             )
                             store.updateAccount(updated)

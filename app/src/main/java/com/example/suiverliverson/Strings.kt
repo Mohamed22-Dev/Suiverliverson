@@ -90,7 +90,19 @@ data class Strings(
     val save: String,
     val enableNotifications: String,
     val orderHistory: String,
-    val noHistory: String
+    val noHistory: String,
+    val phoneLabel: String,
+    val emailLabel: String,
+    val vehicleLabel: String,
+    val vehicleValue: String,
+    val close: String,
+    val fromLabel: String,
+    val toLabel: String,
+    val distanceLabel: String,
+    val totalCompleted: String,
+    val yearsOld: String,
+    val licenseFormat: String,
+    val casablanca: String
 )
 
 val EnStrings = Strings(
@@ -124,13 +136,15 @@ val EnStrings = Strings(
     "Weekly Infographic", "Weekly Earnings & Performance",
     "Ratings & Customer Reviews", "%d Ratings",
     "LIVE 🔴", "Just now",
-    "Order Details Request", "Accept", "Reject", "Category: %s",
-    "Commande récupérée !", "Commande livrée avec succès !",
+    "New Delivery Request", "Accept", "Reject", "Category: %s",
+    "Order Picked Up!", "Order Delivered Successfully!",
     "Delivering to: %s", "Picking up from: %s",
-    "Commande commencée !", "Commande livrée", "Confirmer",
+    "Order Started!", "Order Delivered", "Confirm",
     "Driver Information", "Driver QR Code", "Logout", "Notifications", "No notifications yet",
     "Settings", "Edit Profile & Settings", "Save Changes", "Enable Notifications",
-    "Order History", "No completed orders yet"
+    "Order History", "No completed orders yet",
+    "Phone Number", "Email Address", "Vehicle", "Scooter 125cc (Casablanca 🇲🇦)", "Close",
+    "From: %s", "To: %s", "Distance: %s km", "Total Completed Orders", "%d years old", "License: %s", "Casablanca"
 )
 
 val FrStrings = Strings(
@@ -170,7 +184,9 @@ val FrStrings = Strings(
     "Commande commencée !", "Commande livrée", "Confirmer",
     "Information Livreur", "QR Code Livreur", "Déconnexion", "Notifications", "Aucune notification pour le moment",
     "Paramètres", "Modifier Profil & Paramètres", "Enregistrer", "Activer les notifications",
-    "Historique des commandes", "Aucune commande terminée"
+    "Historique des commandes", "Aucune commande terminée",
+    "Numéro de téléphone", "Adresse E-mail", "Véhicule", "Scooter 125cc (Casablanca 🇲🇦)", "Fermer",
+    "De : %s", "À : %s", "Distance : %s km", "Total des commandes terminées", "%d ans", "Permis : %s", "Casablanca"
 )
 
 val ArStrings = Strings(
@@ -205,12 +221,14 @@ val ArStrings = Strings(
     "تقييمات وتعليقات الزبائن", "%d تقييم",
     "مباشر 🔴", "الآن",
     "تفاصيل الطلب", "قبول", "رفض", "النوع: %s",
-    "Commande récupérée !", "Commande livrée avec succès !",
+    "تم استلام الطلبية!", "تم تسليم الطلبية بنجاح!",
     "جاري التوصيل إلى: %s", "جاري الاستلام من: %s",
-    "الطلبية بدأت!", "تم تسليم الطلبية", "Confirmer",
-    "معلومات السائق (Information Livreur)", "رمز QR للسائق", "تسجيل الخروج", "الإشعارات (Notifications)", "لا توجد إشعارات حتى الآن",
-    "الإعدادات (Settings)", "تعديل الملف الشخصي والإعدادات", "حفظ التغييرات", "تفعيل الإشعارات",
-    "سجل الطلبات المكتملة (History)", "لا توجد طلبات مكتملة حتى الآن"
+    "الطلبية بدأت!", "تم تسليم الطلبية", "تأكيد",
+    "معلومات السائق", "رمز QR للسائق", "تسجيل الخروج", "الإشعارات", "لا توجد إشعارات حتى الآن",
+    "الإعدادات", "تعديل الملف الشخصي والإعدادات", "حفظ التغييرات", "تفعيل الإشعارات",
+    "سجل الطلبات المكتملة", "لا توجد طلبات مكتملة حتى الآن",
+    "رقم الهاتف", "البريد الإلكتروني", "الدراجة / المركبة", "دراجة 125cc (الدار البيضاء 🇲🇦)", "إغلاق",
+    "من: %s", "إلى: %s", "المسافة: %s كم", "إجمالي الطلبات المكتملة", "%d سنة", "رخصة قيادة: %s", "الدار البيضاء"
 )
 
 val LocalStrings = compositionLocalOf { EnStrings }

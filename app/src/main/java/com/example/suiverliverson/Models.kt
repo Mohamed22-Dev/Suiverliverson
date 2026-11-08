@@ -79,7 +79,7 @@ fun generateRandomIncomingOrder(): Order {
         Pair("Nour-El-Houda", AvatarType.WOMAN),
         Pair("Bilal Khelil", AvatarType.YOUNG)
     )
-    val orderTypes = listOf("Food / طعام 🍔", "Fast Food / وجبات سريعة 🍕", "Groceries / بقالة 🛒", "Pharmacy / دواء 💊")
+    val orderTypes = listOf("Food 🍔", "Fast Food 🍕", "Groceries 🛒", "Pharmacy 💊")
     val pickups = listOf("Pizza Hut المعاريف", "Tacos de Lyon أنفا", "Burger King غوتييه", "KFC توين سنتر", "McDo عين الذئاب")
     val clients = listOf("شارع أنفا، الدار البيضاء", "حي المعاريف", "شارع غوتييه", "حي بورغون", "عين الذئاب", "حي النخيل")
 
@@ -96,15 +96,35 @@ fun generateRandomIncomingOrder(): Order {
     )
 }
 
-fun generateRandomReview(): CustomerReview {
-    val comments = listOf(
-        "سائق ممتاز وسريع جداً في التوصيل! شكراً لك 👌",
-        "Super fast delivery, food was still warm and fresh! 🌟",
-        "Service très rapide et livreur très poli. Merci beaucoup! 👍",
-        "توصيل ممتاز وفي الوقت المحدد بالضبط 🚗💨",
-        "خلوق وسريع، أحييك على التعامل الرائع! ❤️",
-        "Très satisfait de la livraison, parfait!"
+fun generateRandomReview(lang: String = "en"): CustomerReview {
+    val enComments = listOf(
+        "Excellent driver, super fast delivery! Thank you 👌",
+        "Food arrived fresh and warm. Great service! 🌟",
+        "Very polite driver and smooth delivery! 👍",
+        "Fast delivery right on time! 🚗💨",
+        "Polite and professional, highly recommended! ❤️"
     )
+    val frComments = listOf(
+        "Livreur très rapide et très poli, merci ! 👌",
+        "Commande arrivée chaude et bien emballée. Parfait ! 🌟",
+        "Service impeccable, très satisfait. 👍",
+        "Livraison rapide et à l'heure exacte. 🚗💨",
+        "Très professionnel et sympathique ! ❤️"
+    )
+    val arComments = listOf(
+        "سائق ممتاز وسريع جداً في التوصيل! شكراً لك 👌",
+        "وصل الطعام ساخناً وطازجاً، خدمة ممتازة! 🌟",
+        "سائق محترم وسريع التعامل. 👍",
+        "توصيل ممتاز وفي الوقت المحدد بالضبط 🚗💨",
+        "تعامل راقي وسريع جداً، أنصح به! ❤️"
+    )
+
+    val comments = when (lang) {
+        "ar" -> arComments
+        "fr" -> frComments
+        else -> enComments
+    }
+
     val names = listOf(
         Pair("Yassine Khelifi", AvatarType.MAN),
         Pair("Sonia Mehdi", AvatarType.WOMAN),
@@ -122,13 +142,27 @@ fun generateRandomReview(): CustomerReview {
         customerName = name,
         rating = ratings.random(),
         comment = comments.random(),
-        timeAgo = "الآن",
+        timeAgo = if (lang == "ar") "الآن" else if (lang == "fr") "À l'instant" else "Just now",
         avatarType = avatarType
     )
 }
 
-val initialReviewsList = listOf(
-    CustomerReview("#REV101", "Kamel Ouali", 5.0f, "توصيل في القمة وسريع جداً!", "قبل 15 دقيقة", AvatarType.MAN),
-    CustomerReview("#REV102", "Ania Hadj", 4.5f, "Service parfait et livreur très sympa.", "قبل ساعة", AvatarType.WOMAN),
-    CustomerReview("#REV103", "Ammi Ahmed", 5.0f, "ماشاء الله تعامل راقي وسريع.", "قبل ساعتين", AvatarType.OLD_MAN)
-)
+fun getInitialReviewsList(lang: String = "en"): List<CustomerReview> {
+    return when (lang) {
+        "ar" -> listOf(
+            CustomerReview("#REV101", "Kamel Ouali", 5.0f, "توصيل في القمة وسريع جداً!", "قبل 15 دقيقة", AvatarType.MAN),
+            CustomerReview("#REV102", "Ania Hadj", 4.5f, "سائق خلوق وخدمة جيدة.", "قبل ساعة", AvatarType.WOMAN),
+            CustomerReview("#REV103", "Ammi Ahmed", 5.0f, "ماشاء الله تعامل راقي وسريع.", "قبل ساعتين", AvatarType.OLD_MAN)
+        )
+        "fr" -> listOf(
+            CustomerReview("#REV101", "Kamel Ouali", 5.0f, "Livraison au top et très rapide !", "Il y a 15 min", AvatarType.MAN),
+            CustomerReview("#REV102", "Ania Hadj", 4.5f, "Livreur très sympa et bon service.", "Il y a 1h", AvatarType.WOMAN),
+            CustomerReview("#REV103", "Ammi Ahmed", 5.0f, "Service parfait et rapide.", "Il y a 2h", AvatarType.OLD_MAN)
+        )
+        else -> listOf(
+            CustomerReview("#REV101", "Kamel Ouali", 5.0f, "Top notch and super fast delivery!", "15 mins ago", AvatarType.MAN),
+            CustomerReview("#REV102", "Ania Hadj", 4.5f, "Very polite driver and great service.", "1 hour ago", AvatarType.WOMAN),
+            CustomerReview("#REV103", "Ammi Ahmed", 5.0f, "Great attitude and prompt delivery.", "2 hours ago", AvatarType.OLD_MAN)
+        )
+    }
+}
